@@ -1,0 +1,33 @@
+[Unit]
+Description=Reverse Shell Detector - Network Connection Monitor
+After=network.target
+Documentation=https://securonis.local/docs/reverse_shell_detector
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/bin/reverse_shell_detector.py
+Restart=on-failure
+RestartSec=30s
+KillMode=process
+KillSignal=SIGTERM
+
+# Security hardening for the monitor itself
+ProtectSystem=strict
+ReadWritePaths=/var/log/reverse_shell_detector /var/run
+ProtectHome=read-only
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=true
+LockPersonality=true
+
+# Needs to be able to see all network connections
+# But restrict capabilities to only what's needed
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_DAC_READ_SEARCH CAP_KILL CAP_NET_RAW
+
+[Install]
+WantedBy=multi-user.target

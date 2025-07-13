@@ -1,0 +1,8 @@
+Unfortunately, I don't have enough time to integrate this project into Securonis Linux by myself.
+All modules use approximately 600 MB of RAM in total, with CPU usage between 5-8% during normal operation and 10-15% during scanning phases.
+I've tried to optimize resource usage as much as possible, but it's still relatively high.
+The Acherus Project will likely remain a prototype, as it's not feasible for me to integrate it into the system alone.
+
+I've released this project completely open-source and free of charge - you are free to do whatever you want with it.
+
+It provides truly robust protection. However, it's still a prototype and I haven't fully tested it yet, nor do I have time to do so. Someone could fork and further develop it, but for now, it will remain here as is.

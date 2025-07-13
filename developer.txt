@@ -1,0 +1,388 @@
+# Acherus Project: Securonis Linux Deployment Guide
+
+This document provides comprehensive deployment instructions for integrating the Acherus Project components into Securonis Linux. Since Securonis Linux operates without package managers and uses source code deployment, this guide specifies the exact filesystem locations and configuration required for each component.
+
+## Directory Structure and Standard Paths
+
+The Acherus Project follows these standardized paths for deployment on Securonis Linux:
+
+### Primary Code Locations:
+
+- Main Tool Executables: `/usr/local/sbin/`
+- Shared Utility Modules: `/usr/local/lib/acherus/utils/`
+- Supporting Libraries: `/usr/local/lib/acherus/lib/`
+- Common Helper Scripts: `/usr/local/lib/acherus/helpers/`
+
+### Configuration Files:
+
+- Main Configuration Directory: `/etc/acherus/`
+- Tool-specific Configurations: `/etc/acherus/[tool_name]/`
+- Global Settings: `/etc/acherus/global.conf`
+- Security Profiles: `/etc/acherus/security_profiles/`
+
+### Log Files:
+
+- Primary Log Directory: `/var/log/acherus/`
+- Tool-specific Logs: `/var/log/acherus/[tool_name]/`
+- Archive Logs: `/var/log/acherus/archive/`
+- Performance Metrics: `/var/log/acherus/metrics/`
+
+### Runtime Data:
+
+- PID Files: `/var/run/acherus/`
+- Socket Files: `/var/run/acherus/sockets/`
+- Temporary Files: `/var/tmp/acherus/`
+- Quarantine Directory: `/var/lib/acherus/quarantine/`
+
+### System Integration:
+
+- Systemd Service Files: `/etc/systemd/system/`
+- Security Modules: `/lib/security/acherus/`
+- Cron Jobs: `/etc/cron.d/acherus`
+
+## Detailed Deployment Instructions for Each Component
+
+### 1. Core Utility Modules
+
+Deploy these shared utility modules that are used by all tools:
+
+```bash
+# Create the utility directory
+mkdir -p /usr/local/lib/acherus/utils/
+
+# Deploy utility modules
+cp -a privilege_manager.py /usr/local/lib/acherus/utils/
+cp -a isolation_manager.py /usr/local/lib/acherus/utils/
+cp -a performance_optimizer.py /usr/local/lib/acherus/utils/
+cp -a monitoring_scope.py /usr/local/lib/acherus/utils/
+cp -a service_activator.py /usr/local/lib/acherus/utils/
+
+# Set permissions
+chmod 750 /usr/local/lib/acherus/utils/*.py
+chown -R root:root /usr/local/lib/acherus/utils/
+```
+
+### 2. ZombieHunter
+
+```bash
+# Create required directories
+mkdir -p /etc/acherus/zombie_hunter/
+mkdir -p /var/log/acherus/zombie_hunter/
+mkdir -p /var/run/acherus/
+
+# Deploy code and configuration
+cp -a ZombieHunter/zombie_hunter.py /usr/local/sbin/
+cp -a ZombieHunter/zombie_hunter.conf /etc/acherus/zombie_hunter/
+cp -a ZombieHunter/zombie_hunter.service /etc/systemd/system/
+
+# Set permissions
+chmod 750 /usr/local/sbin/zombie_hunter.py
+chmod 640 /etc/acherus/zombie_hunter/zombie_hunter.conf
+chmod 644 /etc/systemd/system/zombie_hunter.service
+chown -R root:root /usr/local/sbin/zombie_hunter.py
+chown -R root:root /etc/acherus/zombie_hunter/
+```
+
+### 3. DynamicCronHunter
+
+```bash
+# Create required directories
+mkdir -p /etc/acherus/cron_hunter/
+mkdir -p /var/log/acherus/cron_hunter/
+
+# Deploy code and configuration
+cp -a DynamicCronHunter/cron_hunter.py /usr/local/sbin/
+cp -a DynamicCronHunter/cron_hunter.conf /etc/acherus/cron_hunter/
+cp -a DynamicCronHunter/cron_hunter.service /etc/systemd/system/
+
+# Set permissions
+chmod 750 /usr/local/sbin/cron_hunter.py
+chmod 640 /etc/acherus/cron_hunter/cron_hunter.conf
+chmod 644 /etc/systemd/system/cron_hunter.service
+chown -R root:root /usr/local/sbin/cron_hunter.py
+chown -R root:root /etc/acherus/cron_hunter/
+```
+
+### 4. AnomalyCPUMemHunter
+
+```bash
+# Create required directories
+mkdir -p /etc/acherus/anomaly_hunter/
+mkdir -p /var/log/acherus/anomaly_hunter/
+mkdir -p /var/lib/acherus/anomaly_hunter/memory_dumps/
+
+# Deploy code and configuration
+cp -a AnomalyCPUMemHunter/anomaly_hunter.py /usr/local/sbin/
+cp -a AnomalyCPUMemHunter/anomaly_hunter.conf /etc/acherus/anomaly_hunter/
+cp -a AnomalyCPUMemHunter/anomaly_hunter.service /etc/systemd/system/
+
+# Set permissions
+chmod 750 /usr/local/sbin/anomaly_hunter.py
+chmod 640 /etc/acherus/anomaly_hunter/anomaly_hunter.conf
+chmod 644 /etc/systemd/system/anomaly_hunter.service
+chmod 750 /var/lib/acherus/anomaly_hunter/memory_dumps/
+chown -R root:root /usr/local/sbin/anomaly_hunter.py
+chown -R root:root /etc/acherus/anomaly_hunter/
+```
+
+### 5. BinaryIntegrityMonitor
+
+```bash
+# Create required directories
+mkdir -p /etc/acherus/binary_monitor/
+mkdir -p /var/log/acherus/binary_monitor/
+mkdir -p /var/lib/acherus/quarantine/
+
+# Deploy code and configuration
+cp -a BinaryIntegrityMonitor/binary_integrity_monitor.py /usr/local/sbin/
+cp -a BinaryIntegrityMonitor/binary_integrity_monitor.conf /etc/acherus/binary_monitor/
+cp -a BinaryIntegrityMonitor/binary_integrity_monitor.service /etc/systemd/system/
+cp -a BinaryIntegrityMonitor/lockdown.sh /usr/local/sbin/
+
+# Create initial hash database
+mkdir -p /var/lib/acherus/binary_monitor/
+touch /var/lib/acherus/binary_monitor/hash_database.json
+
+# Set permissions
+chmod 750 /usr/local/sbin/binary_integrity_monitor.py
+chmod 750 /usr/local/sbin/lockdown.sh
+chmod 640 /etc/acherus/binary_monitor/binary_integrity_monitor.conf
+chmod 644 /etc/systemd/system/binary_integrity_monitor.service
+chmod 640 /var/lib/acherus/binary_monitor/hash_database.json
+chmod 750 /var/lib/acherus/quarantine/
+chown -R root:root /usr/local/sbin/binary_integrity_monitor.py
+chown -R root:root /usr/local/sbin/lockdown.sh
+chown -R root:root /etc/acherus/binary_monitor/
+chown -R root:root /var/lib/acherus/binary_monitor/
+```
+
+### 6. SeccompProfileMonitor
+
+```bash
+# Create required directories
+mkdir -p /etc/acherus/seccomp_monitor/
+mkdir -p /var/log/acherus/seccomp_monitor/
+
+# Deploy code and configuration
+cp -a SeccompProfileMonitor/seccomp_monitor.py /usr/local/sbin/
+cp -a SeccompProfileMonitor/seccomp_monitor.conf /etc/acherus/seccomp_monitor/
+cp -a SeccompProfileMonitor/seccomp_monitor.service /etc/systemd/system/
+
+# Set permissions
+chmod 750 /usr/local/sbin/seccomp_monitor.py
+chmod 640 /etc/acherus/seccomp_monitor/seccomp_monitor.conf
+chmod 644 /etc/systemd/system/seccomp_monitor.service
+chown -R root:root /usr/local/sbin/seccomp_monitor.py
+chown -R root:root /etc/acherus/seccomp_monitor/
+```
+
+### 7. CredentialHarvestingDetector
+
+```bash
+# Create required directories
+mkdir -p /etc/acherus/credential_detector/
+mkdir -p /var/log/acherus/credential_detector/
+
+# Deploy code and configuration
+cp -a CredentialHarvestingDetector/credential_harvesting_detector.py /usr/local/sbin/
+cp -a CredentialHarvestingDetector/credential_harvesting_detector.conf /etc/acherus/credential_detector/
+cp -a CredentialHarvestingDetector/credential_harvesting_detector.service /etc/systemd/system/
+
+# Set permissions
+chmod 750 /usr/local/sbin/credential_harvesting_detector.py
+chmod 640 /etc/acherus/credential_detector/credential_harvesting_detector.conf
+chmod 644 /etc/systemd/system/credential_harvesting_detector.service
+chown -R root:root /usr/local/sbin/credential_harvesting_detector.py
+chown -R root:root /etc/acherus/credential_detector/
+```
+
+### 8. LiveConfigScanner
+
+```bash
+# Create required directories
+mkdir -p /etc/acherus/config_scanner/
+mkdir -p /var/log/acherus/config_scanner/
+
+# Deploy code and configuration
+cp -a LiveConfigScanner/live_config_scanner.py /usr/local/sbin/
+cp -a LiveConfigScanner/live_config_scanner.conf /etc/acherus/config_scanner/
+cp -a LiveConfigScanner/live_config_scanner.service /etc/systemd/system/
+
+# Set permissions
+chmod 750 /usr/local/sbin/live_config_scanner.py
+chmod 640 /etc/acherus/config_scanner/live_config_scanner.conf
+chmod 644 /etc/systemd/system/live_config_scanner.service
+chown -R root:root /usr/local/sbin/live_config_scanner.py
+chown -R root:root /etc/acherus/config_scanner/
+```
+
+### 9. ReverseShellDetector
+
+```bash
+# Create required directories
+mkdir -p /etc/acherus/reverse_shell_detector/
+mkdir -p /var/log/acherus/reverse_shell_detector/
+
+# Deploy code and configuration
+cp -a ReverseShellDetector/reverse_shell_detector.py /usr/local/sbin/
+cp -a ReverseShellDetector/reverse_shell_detector.conf /etc/acherus/reverse_shell_detector/
+cp -a ReverseShellDetector/reverse_shell_detector.service /etc/systemd/system/
+
+# Set permissions
+chmod 750 /usr/local/sbin/reverse_shell_detector.py
+chmod 640 /etc/acherus/reverse_shell_detector/reverse_shell_detector.conf
+chmod 644 /etc/systemd/system/reverse_shell_detector.service
+chown -R root:root /usr/local/sbin/reverse_shell_detector.py
+chown -R root:root /etc/acherus/reverse_shell_detector/
+```
+
+### 10. Management GUI
+
+```bash
+# Create required directories
+mkdir -p /usr/local/share/acherus/management_gui/
+mkdir -p /etc/acherus/management_gui/
+
+# Deploy code and configuration
+cp -a ManagementGUI/*.py /usr/local/share/acherus/management_gui/
+cp -a ManagementGUI/requirements.txt /usr/local/share/acherus/management_gui/
+cp -a ManagementGUI/icons/ /usr/local/share/acherus/management_gui/
+cp -a ManagementGUI/acherus_manager.conf /etc/acherus/management_gui/
+cp -a ManagementGUI/acherus-manager.desktop /usr/share/applications/
+
+# Create symlink for easier execution
+ln -sf /usr/local/share/acherus/management_gui/acherus_manager.py /usr/local/bin/acherus-manager
+
+# Set permissions
+chmod 750 /usr/local/share/acherus/management_gui/*.py
+chmod 644 /usr/local/share/acherus/management_gui/requirements.txt
+chmod 644 /usr/local/share/acherus/management_gui/icons/*
+chmod 640 /etc/acherus/management_gui/acherus_manager.conf
+chmod 644 /usr/share/applications/acherus-manager.desktop
+chmod 755 /usr/local/bin/acherus-manager
+chown -R root:root /usr/local/share/acherus/management_gui/
+chown -R root:root /etc/acherus/management_gui/
+```
+
+## Service Activation
+
+After deploying the files, enable and start the services:
+
+```bash
+# Reload systemd to recognize new services
+systemctl daemon-reload
+
+# Enable all services to start at boot
+systemctl enable zombie_hunter.service
+systemctl enable cron_hunter.service
+systemctl enable anomaly_hunter.service
+systemctl enable binary_integrity_monitor.service
+systemctl enable seccomp_monitor.service
+systemctl enable credential_harvesting_detector.service
+systemctl enable live_config_scanner.service
+systemctl enable reverse_shell_detector.service
+
+# Start all services
+systemctl start zombie_hunter.service
+systemctl start cron_hunter.service
+systemctl start anomaly_hunter.service
+systemctl start binary_integrity_monitor.service
+systemctl start seccomp_monitor.service
+systemctl start credential_harvesting_detector.service
+systemctl start live_config_scanner.service
+systemctl start reverse_shell_detector.service
+
+# Check status of all services
+systemctl status 'zombie_hunter.service' 'cron_hunter.service' 'anomaly_hunter.service' 'binary_integrity_monitor.service' 'seccomp_monitor.service' 'credential_harvesting_detector.service' 'live_config_scanner.service' 'reverse_shell_detector.service'
+```
+
+## Security Hardening for Acherus Components
+
+To further enhance the security of the Acherus Project deployment:
+
+1. **Create Dedicated User:**
+```bash
+useradd -r -s /sbin/nologin acherus
+```
+
+2. **Apply Restricted Permissions:**
+```bash
+# Apply restrictive permissions to configuration directory
+chmod 750 /etc/acherus/
+chown -R root:acherus /etc/acherus/
+```
+
+3. **Configure AppArmor Profiles:**
+Create appropriate AppArmor profiles for each tool in `/etc/apparmor.d/usr.local.sbin.acherus_*`
+
+4. **Create Mount Namespaces:**
+Configure systemd services with `ProtectSystem=strict` and `PrivateTmp=yes`
+
+5. **Seccomp Filtering:**
+Apply seccomp profiles to the tools themselves via systemd:
+```
+SystemCallFilter=~@clock @debug @cpu-emulation @keyring @module @mount @obsolete @raw-io
+```
+
+6. **Restrict System Calls:**
+Edit systemd service files to include:
+```
+NoNewPrivileges=yes
+MemoryDenyWriteExecute=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+LockPersonality=yes
+```
+
+7. **SELinux Policy:**
+If using SELinux instead of AppArmor, create custom SELinux policy modules:
+```bash
+# Example (customize as needed)
+touch acherus.te
+# Add policy rules
+make -f /usr/share/selinux/devel/Makefile acherus.pp
+semodule -i acherus.pp
+```
+
+## Maintenance and Troubleshooting
+
+### Log Rotation
+
+Create a logrotate configuration:
+
+```bash
+cat > /etc/logrotate.d/acherus << 'EOF'
+/var/log/acherus/*/*.log {
+    daily
+    missingok
+    rotate 14
+    compress
+    delaycompress
+    notifempty
+    create 0640 root root
+    sharedscripts
+    postrotate
+        systemctl kill -s HUP --kill-who=main acherus-*.service >/dev/null 2>&1 || true
+    endscript
+}
+EOF
+```
+
+### Performance Tuning
+
+To optimize system performance:
+
+1. Edit each tool's configuration file to adjust scan intervals based on system resources
+2. For low-resource systems, consider disabling real-time monitoring and using scheduled scans
+3. Use the minimal monitoring mode during high system load periods
+
+### Backup Configuration
+
+Before system updates or major changes, back up configurations:
+
+```bash
+tar -czf /root/acherus_config_backup_$(date +%Y%m%d).tar.gz /etc/acherus/ /var/lib/acherus/binary_monitor/hash_database.json
+```
+
+This deployment guide provides standard paths and installation instructions for the Acherus Project components on Securonis Linux. Customize the paths and permissions as necessary for your specific environment requirements.

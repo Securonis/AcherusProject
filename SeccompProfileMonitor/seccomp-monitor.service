@@ -1,0 +1,27 @@
+[Unit]
+Description=Seccomp Profile Monitor Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/bin/seccomp_monitor.py
+Restart=on-failure
+RestartSec=5s
+KillMode=process
+KillSignal=SIGTERM
+
+# Security hardening for the monitor itself
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

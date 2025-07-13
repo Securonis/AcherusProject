@@ -1,0 +1,185 @@
+# Acherus Project: Technical Security Capabilities
+
+This document provides detailed technical information about the attacks prevented by the Acherus Project tools and the methods used to detect and mitigate these threats.
+
+## Attack Vectors Addressed
+
+### 1. Process Manipulation and Persistence Attacks
+
+**Prevented Attacks:**
+- Process injection attacks (code/DLL injection)
+- Memory manipulation for execution of unauthorized code
+- Process hollowing and replacement techniques
+- Zombie process exploitation
+- Process masquerading attacks
+- Privilege escalation via parent-child relationship manipulation
+- Unauthorized daemon/service creation
+- Cron job/systemd timer persistence mechanisms
+- Process hiding techniques
+
+**Detection/Prevention Methods:**
+- Continuous process state monitoring with baseline deviation analysis
+- Parent-child relationship verification with lineage tracking
+- Memory region integrity verification
+- Process name-to-binary path consistency checking
+- Inode and file descriptor validation
+- /proc filesystem deep analysis for inconsistencies
+- Behavioral analysis of process lifecycle
+- Real-time crontab and systemd timer monitoring with hash validation
+
+### 2. Binary and Configuration Tampering
+
+**Prevented Attacks:**
+- Rootkit installation
+- Binary backdooring and trojanization
+- Malicious library injection
+- Configuration file tampering for privilege escalation
+- System utility replacement attacks
+- Shared library hijacking
+- Bootkit installation
+- Init system compromise
+
+**Detection/Prevention Methods:**
+- Cryptographic hash verification (SHA-256) of critical binaries
+- Inotify-based real-time filesystem monitoring
+- Extended attribute verification for file integrity
+- Metadata consistency checking (permissions, timestamps)
+- Configuration syntax validation and anomaly detection
+- Executable memory page monitoring
+- Library load order verification
+- Automatic quarantine of suspicious modified files
+
+### 3. Credential Theft and Authentication Attacks
+
+**Prevented Attacks:**
+- Memory-based credential harvesting
+- Keylogging and input capture
+- SSH/authentication token theft
+- Password file exfiltration
+- Authentication bypass techniques
+- Session hijacking
+- PAM module manipulation
+- Authentication cache poisoning
+
+**Detection/Prevention Methods:**
+- Memory scanning for credential patterns
+- Monitoring access to credential storage locations
+- Process behavior analysis during authentication events
+- File access pattern analysis
+- Network traffic analysis for credential exfiltration
+- Credentials file integrity monitoring
+- Authentication process isolation verification
+- Memory region protection enforcement
+
+### 4. Resource Abuse and Cryptojacking
+
+**Prevented Attacks:**
+- Cryptomining malware
+- Resource exhaustion attacks
+- CPU/memory hogging malware
+- Hidden process resource consumption
+- System throttling evasion techniques
+- Background processing abuse
+- Distributed resource theft
+- Nice level manipulation
+
+**Detection/Prevention Methods:**
+- CPU and memory usage pattern analysis
+- Baseline resource utilization profiling
+- Process priority and nice level monitoring
+- Thread spawn rate analysis
+- Idle vs. active CPU analysis
+- GPU utilization monitoring
+- Entropy analysis for cryptographic operations
+- Cgroup resource allocation monitoring
+
+### 5. System Call Abuse and Kernel Exploitation
+
+**Prevented Attacks:**
+- Kernel exploit attempts
+- System call hijacking
+- Seccomp bypass techniques
+- Privilege escalation via kernel vulnerabilities
+- Sandbox escape attempts
+- Capability abuse
+- Namespace escape techniques
+- LD_PRELOAD and function hooking attacks
+
+**Detection/Prevention Methods:**
+- Seccomp profile enforcement and monitoring
+- System call pattern analysis
+- Kernel module loading supervision
+- Runtime integrity verification
+- Capability usage tracking and anomaly detection
+- Namespace integrity verification
+- Function hooking detection
+- Library call stack validation
+
+### 6. Network Exploitation
+
+**Prevented Attacks:**
+- Reverse shell establishment
+- Command and control (C2) communications
+- Data exfiltration channels
+- Remote access trojan (RAT) communications
+- DNS tunneling
+- Covert channel creation
+- Network traffic manipulation
+- Port knocking and hidden service detection
+
+**Detection/Prevention Methods:**
+- Connection pattern analysis and behavioral modeling
+- Network traffic anomaly detection
+- Socket usage monitoring
+- Protocol conformance verification
+- Process-to-connection correlation
+- Unusual port/protocol combination detection
+- Traffic volume analysis
+- Connection frequency monitoring
+
+## Technical Implementation Methods
+
+### 1. Process Monitoring and Control
+
+- **Process Table Scanning**: Periodic and event-driven scans of the /proc filesystem
+- **Lineage Tracking**: Maintains process creation chains and validates parent-child relationships
+- **Memory Mapping Analysis**: Examines /proc/[pid]/maps for unauthorized memory regions
+- **File Descriptor Auditing**: Monitors open file descriptors for suspicious access patterns
+- **Process Namespace Isolation**: Creates isolation boundaries using Linux namespaces
+- **Cgroup Resource Control**: Enforces resource limits through control groups
+- **Capability Control**: Fine-grained capability management with secure dropping and restoration
+
+### 2. Filesystem Security
+
+- **Inotify Monitoring**: Real-time event-based monitoring of filesystem changes
+- **Hash Verification**: Cryptographic validation of binary integrity
+- **Extended Attributes**: Uses file system xattrs for storing and verifying security metadata
+- **Change Detection Algorithms**: Statistical and rule-based change detection for configuration files
+- **File Access Control**: Monitors and restricts access to sensitive files
+- **Quarantine Mechanisms**: Isolates and contains potentially compromised files
+
+### 3. Privilege Management
+
+- **Capability-based Access Control**: Uses Linux capabilities instead of full root privileges
+- **Secure Privilege Dropping**: Permanently drops unnecessary privileges after initialization
+- **Temporary Privilege Elevation**: Securely elevates privileges only when required
+- **User/Group ID Manipulation**: Creates dedicated service users with minimal permissions
+- **Mount Namespace Control**: Restricts visibility of sensitive filesystem paths
+
+### 4. Performance Optimization
+
+- **Adaptive Scanning**: Adjusts scanning frequency based on system load
+- **Resource-Aware Processing**: Scales back monitoring during high system load
+- **Incremental Analysis**: Focuses on changes rather than full system scans
+- **Multi-Process Architecture**: Distributes monitoring load across worker processes
+- **Rate Limiting**: Prevents excessive resource consumption during attack conditions
+
+### 5. Advanced Detection Techniques
+
+- **Behavioral Baselining**: Establishes normal behavior patterns and detects deviations
+- **Statistical Anomaly Detection**: Uses statistical methods to identify outliers
+- **Signature-Based Detection**: Employs known patterns to identify malicious activity
+- **Heuristic Analysis**: Uses rule-based detection for previously unseen threats
+- **Correlation Engine**: Connects events across different monitoring tools for comprehensive threat analysis
+
+This document provides a high-level overview of the technical security capabilities of the Acherus Project. For more detailed information about specific tools and their implementation, refer to the individual tool documentation and source code.

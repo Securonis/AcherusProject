@@ -1,0 +1,29 @@
+[Unit]
+Description=Binary Integrity Monitor Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/bin/binary_integrity_monitor.py
+Restart=on-failure
+RestartSec=10s
+KillMode=process
+KillSignal=SIGTERM
+
+# Security hardening for the monitor itself
+ProtectSystem=strict
+ReadWritePaths=/var/log/binary_integrity /var/quarantine/binaries /var/lib/binary_integrity
+ProtectHome=read-only
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=true
+LockPersonality=true
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH CAP_DAC_OVERRIDE
+
+[Install]
+WantedBy=multi-user.target

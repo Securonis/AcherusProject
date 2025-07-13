@@ -1,0 +1,32 @@
+[Unit]
+Description=Live Configuration Integrity Scanner
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/bin/live_config_scanner.py
+Restart=on-failure
+RestartSec=30s
+KillMode=process
+KillSignal=SIGTERM
+
+# Security hardening for the service
+ProtectSystem=strict
+ReadWritePaths=/var/log/live_config_scanner /var/lib/live_config_scanner /var/run
+PrivateTmp=true
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=true
+LockPersonality=true
+
+# Service needs to be able to read all config files
+# But we can restrict capabilities to only what's needed
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH CAP_DAC_OVERRIDE
+
+[Install]
+WantedBy=multi-user.target
